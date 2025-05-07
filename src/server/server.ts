@@ -4,6 +4,7 @@ import type {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
+import path from "path";
 import { ShortCreator } from "../short-creator/ShortCreator";
 import { APIRouter } from "./routers/rest";
 import { MCPRouter } from "./routers/mcp";
@@ -27,20 +28,30 @@ export class Server {
     const mcpRouter = new MCPRouter(shortCreator);
     this.app.use("/api", apiRouter.router);
     this.app.use("/mcp", mcpRouter.router);
+
+    // Serve static files from the UI build
+    this.app.use(express.static(path.join(__dirname, '../../dist/ui')));
+    this.app.use('/static', express.static(path.join(__dirname, '../../static')));
+
+    // Serve the React app for all other routes (must be last)
+    this.app.get('*', (req: ExpressRequest, res: ExpressResponse) => {
+      res.sendFile(path.join(__dirname, '../../dist/ui/index.html'));
+    });
   }
 
   public start(): http.Server {
-    return this.app.listen(this.config.port, (error: unknown) => {
-      if (error) {
-        logger.error(error, "Error starting server");
-        return;
-      }
+    const server = this.app.listen(this.config.port, () => {
       logger.info(
         { port: this.config.port, mcp: "/mcp", api: "/api" },
         "MCP and API server is running",
       );
-      // todo log instructions
     });
+
+    server.on('error', (error: Error) => {
+      logger.error(error, "Error starting server");
+    });
+    
+    return server;
   }
 
   public getApp() {
