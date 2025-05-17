@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/gyoridavid-short-video-maker-badge.png)](https://mseep.ai/app/gyoridavid-short-video-maker)
+
 # Description
 
 An open source automated video creation tool for generating short-form video content. Short Video Maker combines text-to-speech, automatic captions, background videos, and music to create engaging short videos from simple text inputs.
